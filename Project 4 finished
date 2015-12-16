@@ -1,0 +1,314 @@
+Enter file contents here//// Arrays of objects.
+
+
+int nb=16;
+Ball[] b=  new Ball[nb];         // Array of Ball objects.
+
+Button b1,b2,b3,b0;
+Paragraph p1;
+String title= " Projet 4";
+String help= "'r' key to reset, 'q to quit. \n 'w' to remove wall. /n click any ball to reset it.";
+String news= help;
+String author= "Dymon Harris";
+
+float up, right, down, left;
+float center;
+float mright, mleft;
+float surface;
+float horizon;
+
+boolean wall=true;
+
+//// SETUP:  create arrays, initialize, ec.
+void setup() {
+  size( 800,700 );
+  horizon=  height/4;
+  right= width-100;
+  left=  95;
+  up=  165;
+  down= height-130;
+  center= left + (right-left) / 2;
+  mleft= 410;
+  mright= 340;
+  
+  // Create cue and 15 balls.
+  b[0]=  new Ball( 0, 255, 255, 255 );
+  b[0].x=  200;
+  b[0].y=  200;
+  for (int i=1; i<nb; i++) {
+    b[i]=  new Ball( 0, 255, 255, 255 );
+  }
+  
+ b1= new Button(); 
+  b1.r=170;
+  b1.g=200;
+  b1.b=255;
+  b1.name= "Reset";
+  //
+  /*b2= new Button();
+  b2.r=170;
+  b2.g=200;
+  b2.b=255;
+  b2.name= "Color"; */
+  //
+  b3= new Button(); 
+  b3.r=170;
+  b3.g=200;
+  b3.b=255;
+  b3.name="Wall";
+  //
+  b0= new Button(); 
+  b0.r=170;
+  b0.g=200;
+  b0.b=255;
+  b0.name="Quit";
+  //
+  p1= new Paragraph();
+  p1.r=150;
+  p1.g=200;
+  p1.b=250;
+  p1.name="Project 3 \n \n 'r' key to reset, 'q to quit. \n 'w' to remove wall.\n click any ball to reset it.";
+  //
+}
+
+void reset() {
+  b[0].x= left + (right-left) / 4;
+  b[0].y= up + (down-up) / 2;
+  b[0].dx=0; b[0].dy=0;
+
+  mleft= 410;
+  mright= 340;
+  wall = true;
+
+
+  //// Random positions on right half (& ran speeds).
+  for (int i=1; i<nb; i++) {
+    b[i].x= random( mleft+60, right-60);
+    b[i].y= random(up+60, down-60);
+    b[i].dx= random( -2, 2 );
+    b[i].dy= random( -2, 2 );
+  }
+
+  
+//  reset();
+  
+}
+//// NEXT:  Draw ball, after moving and colliding.
+void draw() {
+  /* background( 100,150,250 ); */
+  background ( 150,200,250 );
+  rectMode(CENTER);
+  table ( left, up, right, down );
+  show();
+  action();
+  messages();
+}
+
+//// Table, buttons, etc.
+void table( float left, float up, float right, float down ) {
+  fill( 0,150,100 );
+  strokeWeight(15);
+  stroke( 200,200,200 );
+  rect( 395,370,645,445 );
+  stroke(0);
+  strokeWeight(8);
+
+
+  if (!wall) {
+    float center= left + (right-left) / 2;    
+    line( 0,0,0,0 );
+  }
+  
+  if (wall) {
+    float center= left + (right-left) / 2;    
+     line( 395,575,395,165 );
+  }
+}
+
+//// ACTION:  move, collide, etc.
+void action() {
+  for( int i=0; i<nb-1; i++) {
+    for( int j=i+1; j<nb; j++) {    
+      collide( b[i], b[j] );
+    }
+  }
+  //// Move all balls.
+  for( int i=0; i<nb; i++) {
+    b[i].move();
+  }
+}
+//// Elastic collisions -- swap dx,dy
+void collide( Ball p, Ball q ) {
+  if ( p.hit( q.x,q.y ) ) {
+    float tmp; float r,g,b;
+    tmp=p.dx;  p.dx=q.dx;  q.dx=tmp;      // Swap the velocities.
+    tmp=p.dy;  p.dy=q.dy;  q.dy=tmp;
+    p.move();  p.move();   p.move();
+    q.move();  q.move();   q.move();
+  }
+  if ( p.hit( q.x,q.y ) ) {
+    p.r= (p.r+128) % 256;
+    q.r= (q.b+128) % 256;
+  }
+  //++++
+}
+
+//// Display 
+void show() {
+  for( int i=0; i<nb; i++) {
+    b[i].show();
+  }
+   b1.show();
+ /* b2.show(); */
+  b3.show();
+  b0.show();
+  //
+  p1.show();
+}
+
+//// ????
+void messages() {
+}
+
+
+/* void mousePressed() {
+  
+   if ( hit( mouseX,mouseY,  b[1].x,  b[1].y, 30,30  ) ) {  reset(); }
+}
+*/
+
+void keyPressed() {
+  if (key == 'q') { exit(); }
+  if (key == 'r') { reset(); }
+  if (key == 'w') { mleft = left; mright = right; wall = false; }
+}
+
+void mousePressed() {
+  
+   if ( hit( mouseX, mouseY, b1.x, b1.y, 80, 40 ) ) {
+      reset();
+   }
+   /* if ( hit( mouseX, mouseY, b2.x, b2.y, 80, 40 ) ) {
+       r= int( random(0,255) ); 
+       g= int( random(0,200) ); 
+       b= int( random(0,230) );
+   } */
+  
+  if ( hit( mouseX, mouseY, b3.x, b3.y, 80, 40 ) ) {
+  { mleft = left; mright = right; wall = false; }
+  }
+  
+  if ( hit( mouseX, mouseY, b0.x, b0.y, 80, 40 ) ) {
+      exit();
+   }
+   
+}
+//////// CLASSES ////////
+class Ball {
+  float x,y, dx,dy;
+  float r,g,b;
+  int number;
+  //// CONSTRUCTORS:
+  Ball( int n ) {
+    number=  n;
+    randomize();
+  }
+  Ball( int n, float r, float g, float b ) {
+    number=  n;
+    this.r=  r;
+    this.g=  g;
+    this.b=  b;
+    randomize();
+  }
+  Ball( int n, float x, float y ) {
+    number=  n;
+    randomize();
+  }
+  void randomize() {
+    r=  random( 50, 255 );
+    g=  random( 150, 255 );
+    b=  random( 50, 255 );
+    x=  random( width/2, width-100 );
+    y=  random( horizon+0, height-50 );
+    dx=  random( -2, 2 );
+    dy=  random( -2, 2 );
+  }
+  
+  void reset() {
+    x=  random( width/2, width-100 );
+    y=  random( horizon+0, height-50 );
+    dx=  random( -2, 2 );
+    dy=  random( -2, 2 );
+  }
+  
+  //// METHODS ////
+  void move() {
+    x=  x+dx;
+    y=  y+dy;
+    if (x<mleft || x>right) {  dx *=  -1; }
+    if (y<up || y>down) {  dy *=  -1; }
+  }
+  void show() {
+    //+++++
+    strokeWeight(1);
+    fill(r,g,b);
+    ellipse( x, y, 30, 30 );
+  }
+  
+  boolean hit( float x, float y ) {
+    if (  dist( x,y, this.x,this.y ) < 30 ) return true;
+    else return false;
+  }
+}
+
+
+class Button {
+  float x,y,w,h;
+  int r,g,b;
+  String name="s";
+  String s ;
+  
+  void show() {
+    fill(r,g,b);
+    strokeWeight(1);
+    rect( x,y, 80,40 );
+    fill(0);
+    text( name, x-5,y );
+    
+    b1.x=150; b1.y=40; b1.w=100; b1.h=100; 
+    /* b2.x=600; b2.y=40;  b2.w=100; b2.h=100; */
+    b3.x=450; b3.y=40; b3.w=100; b3.h=100;
+    b0.x=28;  b0.y=100;  b0.w=100; b0.h=100;
+  }
+}
+
+class Paragraph {
+  float x,y,w,h;
+  int r,g,b;
+  String name="s";
+  String s ;
+  
+  void show() {
+    fill(r,g,b);
+    strokeWeight(0);
+    rect( x,y, 0,0 );
+    fill(0);
+    text( name, x-5,y );
+    p1.x=230; p1.y=20; p1.w=0; p1.h=0;
+  }
+}
+
+boolean hit( float x1, float y1, float x2, float y2, float w, float h ) {
+  boolean result;
+
+  // +++++ RETURNS TRUE when ????
+  if ( abs(x1-x2) < w && abs(y1-y2)<h ) {
+    result=  true;
+  } else {
+    result=false;
+  }
+  return result;
+}
+
+
+
